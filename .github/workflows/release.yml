@@ -1,0 +1,89 @@
+# Builds the game for Windows, macOS, Linux and Web.
+# - Every push to main and every pull request: run the checks.
+# - A pushed tag like v0.2.0: also export all platforms and publish a GitHub
+#   Release with the zipped builds attached.
+# - Manual run (Actions tab): export and keep the builds as a workflow artifact.
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  GODOT_VERSION: 4.7.2
+  GAME: CardboardEspionageAction
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Godot ${{ env.GODOT_VERSION }}
+        run: |
+          base=https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable
+          curl -fsSL -o godot.zip "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip
+          sudo mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" /usr/local/bin/godot
+          godot --version
+
+      - name: Import project
+        run: godot --headless --path . --import || true
+
+      - name: Checks (tests + autopilot beats every mission)
+        run: bash checks/verify.sh
+
+      - name: Install export templates
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        run: |
+          base=https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable
+          curl -fsSL -o templates.tpz "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          dest="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          mkdir -p "$dest"
+          unzip -q templates.tpz
+          mv templates/* "$dest/"
+
+      - name: Export all platforms
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        run: |
+          version="${GITHUB_REF_NAME}"
+          [[ "$version" == v* ]] || version="dev"
+          mkdir -p build/windows build/macos build/linux build/web dist
+          godot --headless --path . --export-release "Windows" "build/windows/$GAME.exe"
+          godot --headless --path . --export-release "macOS" "build/macos/$GAME.zip"
+          godot --headless --path . --export-release "Linux" "build/linux/$GAME.x86_64"
+          godot --headless --path . --export-release "Web" "build/web/index.html"
+          chmod +x "build/linux/$GAME.x86_64"
+          (cd build/windows && zip -qr "../../dist/$GAME-$version-windows.zip" .)
+          cp "build/macos/$GAME.zip" "dist/$GAME-$version-macos.zip"
+          (cd build/linux && zip -qr "../../dist/$GAME-$version-linux.zip" .)
+          (cd build/web && zip -qr "../../dist/$GAME-$version-web.zip" .)
+          ls -la dist
+          for f in dist/*.zip; do [ -s "$f" ] || { echo "empty build: $f"; exit 1; }; done
+
+      - name: Keep builds as an artifact
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: builds
+          path: dist/*.zip
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          notes="docs/releases/${GITHUB_REF_NAME}.md"
+          [ -f "$notes" ] || notes=/dev/null
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" dist/*.zip --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" dist/*.zip \
+              --title "Cardboard Espionage Action ${GITHUB_REF_NAME}" --notes-file "$notes"
+          fi

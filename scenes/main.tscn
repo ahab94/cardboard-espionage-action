@@ -1,23 +1,6 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://scripts/player.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/game.gd" id="1"]
 
 [node name="Main" type="Node2D"]
-
-[node name="TitleLabel" type="Label" parent="."]
-offset_left = 20.0
-offset_top = 20.0
-offset_right = 400.0
-offset_bottom = 60.0
-text = "Welcome to the Godot Sandbox! Use the arrow keys."
-
-[node name="Player" type="Node2D" parent="."]
-position = Vector2(576, 324)
 script = ExtResource("1")
-
-[node name="Body" type="ColorRect" parent="Player"]
-offset_left = -24.0
-offset_top = -24.0
-offset_right = 24.0
-offset_bottom = 24.0
-color = Color(0.2, 0.6, 1, 1)

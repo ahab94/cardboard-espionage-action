@@ -11,4 +11,8 @@ GODOT=$(command -v godot || true)
 "$GODOT" --headless --path . --import >/dev/null 2>&1 || true
 out=$("$GODOT" --headless --path . --script res://tests/smoke_test.gd 2>&1) || { echo "$out"; exit 1; }
 echo "$out" | grep -q "SMOKE OK" || { echo "$out"; echo "smoke test did not print SMOKE OK"; exit 1; }
+out=$("$GODOT" --headless --path . --script res://tests/game_test.gd 2>&1) || { echo "$out"; exit 1; }
+if echo "$out" | grep -qE "SCRIPT ERROR|FAIL:" || ! echo "$out" | grep -q "GAME OK"; then echo "$out"; echo "gameplay test failed"; exit 1; fi
+
+bash "$(dirname "$0")/autoplay.sh" | tail -1
 echo "godot-sandbox: all good"

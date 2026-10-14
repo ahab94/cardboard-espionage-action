@@ -1,0 +1,32 @@
+# Cardboard Espionage Action — notes for Claude
+
+Top-down stealth game in Godot 4.7 (GDScript), a parody of MGS VR Missions: you are a cardboard box sneaking past cameras, guards, drones and lasers through 10 maze missions. This is a long-term project; README.md holds the roadmap.
+
+## Run and check
+- Play: `godot --path .` (or open in the editor and press F5).
+- Every change: `bash checks/verify.sh` must end with `godot-sandbox: all good` (~40s). It runs the smoke test, `tests/game_test.gd` (mechanics plus map validation), and `checks/autoplay.sh`, which has the autopilot beat every mission with zero alerts. If autoplay fails after a level change, the level is probably unwinnable; trace it with `--trace`.
+- Dev flags go after `--`:
+  - `--level=N` (0-based) skips the menu.
+  - `--autopilot` has the bot play; add `--trace` to log its plan.
+  - `--exit-on-end` prints `RESULT level=… complete|timeout time=… alerts=…` and quits.
+  - `--timeout=S`
+  - `--screenshot=path.png` with optional `--wait=S`.
+  - Add `--fixed-fps 60` (a Godot flag, before `--`) to run faster than real time.
+- Visuals: `godot --path . -- --level=N --screenshot=<scratchpad>/shot.png`, then Read the PNG. Godot windows launched from a terminal can't be seen by computer use; use the editor's Play button instead.
+- Demos: `bash tools/record_demos.sh` records autopilot runs with Movie Maker into `docs/media/` (needs ffmpeg).
+- Release: pushing a `v*` tag runs `.github/workflows/release.yml`, which exports Windows/macOS/Linux/Web builds via `export_presets.cfg` and attaches them to a GitHub Release.
+
+## Layout
+- `scripts/levels.gd`: missions as ASCII maps plus patrol/laser/turret config; the format is documented at the top of the file.
+- `scripts/game.gd`: builds a level, runs detection (0..1 meter) and hazards (instant alarm), and handles the alert/complete/menu states, HUD, save file (`user://progress.cfg`), input actions and dev flags.
+- `scripts/maze.gd`: wall/door collision (layer 1) and drawing.
+- `scripts/player.gd`: the box (CharacterBody2D, layer 2). SPACE hides it. `bot_*` fields let the autopilot drive it.
+- `scripts/vision_cone.gd`: shared ray-cast cone. `security_camera.gd` (sweep or turret spin) and `soldier.gd` (patrol, investigate) extend it.
+- `scripts/drone.gd`: spotlight that flies over walls. `laser.gd`: cycling tripwire. `keycard.gd`, `goal.gd`.
+- `scripts/mission_menu.gd`: mission select overlay. `scripts/autopilot.gd`: time-expanded search planner.
+
+## Conventions
+- Enemies must stay deterministic. Each exposes a forecast (`angle_at`, `forecast`, `active_after`) that the autopilot relies on; keep these in sync with the real movement code (soldier and drone share `_advance`).
+- Nodes are built in code and drawn with `_draw()`; there are no art assets yet. Keep the VR palette: navy, cyan `#46d6ff`, goal green `#4dff9a`, alert yellow/red, door orange.
+- Scripts reference each other with `preload`, not `class_name`, so headless `--script` runs work.
+- Add a test for each new mechanic. Comments explain why, not what. The user is learning Godot, so briefly explain new engine concepts.

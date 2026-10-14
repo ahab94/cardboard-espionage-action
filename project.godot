@@ -1,6 +1,16 @@
 config_version=5
 
 [application]
-config/name="Godot Sandbox"
+config/name="Cardboard Espionage Action"
 run/main_scene="res://scenes/main.tscn"
-config/features=PackedStringArray("4.3")
+config/features=PackedStringArray("4.7")
+config/version="0.2.0"
+config/icon="res://icon.svg"
+boot_splash/bg_color=Color(0.043, 0.165, 0.251, 1)
+boot_splash/show_image=false
+
+[display]
+window/size/viewport_width=1152
+window/size/viewport_height=648
+window/stretch/mode="canvas_items"
+window/stretch/aspect="keep"

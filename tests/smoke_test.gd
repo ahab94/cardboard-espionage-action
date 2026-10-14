@@ -7,9 +7,10 @@ func _init() -> void:
 		quit(1)
 		return
 	var main := packed.instantiate()
-	if main.get_node_or_null("TitleLabel") as Label == null or main.get_node_or_null("Player") == null:
-		push_error("missing TitleLabel or Player")
+	if main.get_script() == null or not main.has_method("load_level"):
+		push_error("main scene is missing the game script")
 		quit(1)
 		return
+	main.free()
 	print("SMOKE OK")
 	quit(0)

@@ -1,3 +1,5 @@
 .godot/
 .DS_Store
 LOOM_BLOCKED.md
+build/
+dist/
