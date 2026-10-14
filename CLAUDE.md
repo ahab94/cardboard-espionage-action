@@ -14,7 +14,7 @@ Top-down stealth game in Godot 4.7 (GDScript): you are a cardboard box sneaking 
   - Add `--fixed-fps 60` (a Godot flag, before `--`) to run faster than real time.
 - Visuals: `godot --path . -- --level=N --screenshot=<scratchpad>/shot.png`, then Read the PNG. Godot windows launched from a terminal can't be seen by computer use; use the editor's Play button instead.
 - Demos: `bash tools/record_demos.sh` records autopilot runs with Movie Maker into `docs/media/` GIFs plus `build/demos/full-playthrough.mp4` (needs ffmpeg). Upload the mp4 to each release as `CardboardEspionageAction-autopilot-playthrough.mp4`.
-- Release: pushing a `v*` tag runs `.github/workflows/release.yml`, which exports Windows/macOS/Linux/Web builds via `export_presets.cfg` and attaches them to a GitHub Release.
+- Release: pushing a `v*` tag runs `.github/workflows/release.yml`, which exports Windows/macOS/Linux/Web builds via `export_presets.cfg` and attaches them to a GitHub Release, and deploys the web build to https://ahab94.github.io/cardboard-espionage-action/. Write `docs/releases/<tag>.md` before tagging. `install.sh` and `install.ps1` install the latest release in one command.
 
 ## Layout
 - `scripts/levels.gd`: missions as ASCII maps plus patrol/laser/turret config; the format is documented at the top of the file.
@@ -27,6 +27,6 @@ Top-down stealth game in Godot 4.7 (GDScript): you are a cardboard box sneaking 
 
 ## Conventions
 - Enemies must stay deterministic. Each exposes a forecast (`angle_at`, `forecast`, `active_after`) that the autopilot relies on; keep these in sync with the real movement code (soldier and drone share `_advance`).
-- Nodes are built in code and drawn with `_draw()`; there are no art assets yet. Keep the VR palette: navy, cyan `#46d6ff`, goal green `#4dff9a`, alert yellow/red, door orange.
+- Nodes are built in code and drawn with `_draw()`; there are no art assets yet. Keep the wireframe palette: navy, cyan `#46d6ff`, goal green `#4dff9a`, alert yellow/red, door orange.
 - Scripts reference each other with `preload`, not `class_name`, so headless `--script` runs work.
 - Add a test for each new mechanic. Comments explain why, not what. The user is learning Godot, so briefly explain new engine concepts.

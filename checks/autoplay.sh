@@ -4,7 +4,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 GODOT=$(command -v godot || echo /Applications/Godot.app/Contents/MacOS/Godot)
-count=$(grep -c '"name": "VR-' scripts/levels.gd)
+count=$(grep -c '"name": "VO-' scripts/levels.gd)
 fail=0
 for ((i = 0; i < count; i++)); do
 	line=$("$GODOT" --headless --path . --fixed-fps 60 -- --level=$i --autopilot --exit-on-end --timeout=240 2>&1 | grep RESULT || true)

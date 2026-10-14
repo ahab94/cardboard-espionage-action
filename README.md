@@ -2,16 +2,31 @@
 
 A top-down stealth game where you are a cardboard box. Sneak through 10 wireframe missions past sweeping cameras, patrolling guards, drones, laser tripwires and a spinning turret. When something looks your way, hold still: it's just a box.
 
-![The autopilot beating VR-10 Final Exam (2x speed)](docs/media/demo.gif)
+![The autopilot beating VO-10 Final Exam (2x speed)](docs/media/demo.gif)
 
-*The built-in autopilot beating the Final Exam at 2× speed. [Watch it beat all 10 missions (3½ min)](../../releases/download/v0.2.0/CardboardEspionageAction-autopilot-playthrough.mp4).*
+*The built-in autopilot beating the Final Exam at 2× speed. [Watch it beat all 10 missions (3½ min)](../../releases/download/v0.2.1/CardboardEspionageAction-autopilot-playthrough.mp4).*
 
-## Download
-Grab the latest build for **Windows, macOS, Linux or Web** from [Releases](../../releases).
+## Play
+**▶ [Play in your browser](https://ahab94.github.io/cardboard-espionage-action/)**: nothing to install.
 
-- **macOS:** the app isn't notarized. Right-click → Open the first time, or run `xattr -dr com.apple.quarantine "Cardboard Espionage Action.app"`.
-- **Linux:** `chmod +x CardboardEspionageAction.x86_64` then run it.
-- **Web:** serve the unzipped folder with any static web server (for example `python3 -m http.server`) and open `index.html`.
+Or install the desktop version with one command:
+
+**macOS / Linux**
+```bash
+curl -fsSL https://raw.githubusercontent.com/ahab94/cardboard-espionage-action/main/install.sh | bash
+```
+
+**Windows** (PowerShell)
+```powershell
+irm https://raw.githubusercontent.com/ahab94/cardboard-espionage-action/main/install.ps1 | iex
+```
+
+- macOS installs to `~/Applications`.
+- Linux installs to `~/.local/share` and adds a `cardboard-espionage-action` command and an app-menu entry.
+- Windows installs to `%LOCALAPPDATA%` and adds a Start menu shortcut.
+- To uninstall on macOS/Linux, run the same command with `UNINSTALL=1` before `bash`.
+
+You can also download the zips directly from [Releases](../../releases). The macOS app isn't notarized, so on first launch right-click → Open.
 
 ## Controls
 | Key | Action |
@@ -35,11 +50,11 @@ Each mission adds one new thing. All clips show the autopilot at 2× speed.
 
 | | |
 |---|---|
-| ![VR-01](docs/media/missions/vr-01.gif)<br>**VR-01 First Contact:** one sweeping camera | ![VR-02](docs/media/missions/vr-02.gif)<br>**VR-02 Hide in Plain Sight:** hold Space as cones pass |
-| ![VR-03](docs/media/missions/vr-03.gif)<br>**VR-03 Pillars:** hide in the cameras' shadows | ![VR-04](docs/media/missions/vr-04.gif)<br>**VR-04 Tripwire:** time the laser waves |
-| ![VR-05](docs/media/missions/vr-05.gif)<br>**VR-05 Patrol:** two guards on crossing routes | ![VR-06](docs/media/missions/vr-06.gif)<br>**VR-06 Eye in the Sky:** drones ignore walls |
-| ![VR-07](docs/media/missions/vr-07.gif)<br>**VR-07 Keycard:** raid the guarded vault | ![VR-08](docs/media/missions/vr-08.gif)<br>**VR-08 Turret:** stay behind its back |
-| ![VR-09](docs/media/missions/vr-09.gif)<br>**VR-09 Labyrinth:** cameras, a guard and a drone | ![VR-10](docs/media/missions/vr-10.gif)<br>**VR-10 Final Exam:** everything at once |
+| ![VO-01](docs/media/missions/vo-01.gif)<br>**VO-01 First Contact:** one sweeping camera | ![VO-02](docs/media/missions/vo-02.gif)<br>**VO-02 Hide in Plain Sight:** hold Space as cones pass |
+| ![VO-03](docs/media/missions/vo-03.gif)<br>**VO-03 Pillars:** hide in the cameras' shadows | ![VO-04](docs/media/missions/vo-04.gif)<br>**VO-04 Tripwire:** time the laser waves |
+| ![VO-05](docs/media/missions/vo-05.gif)<br>**VO-05 Patrol:** two guards on crossing routes | ![VO-06](docs/media/missions/vo-06.gif)<br>**VO-06 Eye in the Sky:** drones ignore walls |
+| ![VO-07](docs/media/missions/vo-07.gif)<br>**VO-07 Keycard:** raid the guarded vault | ![VO-08](docs/media/missions/vo-08.gif)<br>**VO-08 Turret:** stay behind its back |
+| ![VO-09](docs/media/missions/vo-09.gif)<br>**VO-09 Labyrinth:** cameras, a guard and a drone | ![VO-10](docs/media/missions/vo-10.gif)<br>**VO-10 Final Exam:** everything at once |
 
 Best times and unlocked missions are saved between sessions.
 

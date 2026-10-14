@@ -1,5 +1,5 @@
 extends Node2D
-## Turns an ASCII map into wall collision and draws the VR-style grid.
+## Turns an ASCII map into wall collision and draws the wireframe grid.
 ## See levels.gd for what each character means.
 
 const TILE := 48.0

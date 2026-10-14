@@ -1,5 +1,5 @@
 extends RefCounted
-## The VR missions, easiest first. Each one introduces something new.
+## The Virtual Ops missions, easiest first. Each one introduces something new.
 ##
 ## "map": one character = one 48px tile; every row the same width (max 24x12).
 ##   #        wall                    .        floor
@@ -23,7 +23,7 @@ extends RefCounted
 
 const LEVELS := [
 	{
-		"name": "VR-01  FIRST CONTACT",
+		"name": "VO-01  FIRST CONTACT",
 		"brief": "Reach the GOAL. Stay out of the camera's cone.",
 		"map": [
 			"############v###########",
@@ -41,7 +41,7 @@ const LEVELS := [
 		],
 	},
 	{
-		"name": "VR-02  HIDE IN PLAIN SIGHT",
+		"name": "VO-02  HIDE IN PLAIN SIGHT",
 		"brief": "Hold SPACE to hide in the box. A still box is slow to spot.",
 		"map": [
 			"#####v#####v#####v######",
@@ -52,7 +52,7 @@ const LEVELS := [
 		],
 	},
 	{
-		"name": "VR-03  PILLARS",
+		"name": "VO-03  PILLARS",
 		"brief": "Walls and pillars block a camera's view. Move through the shadows.",
 		"map": [
 			"######v#########v#######",
@@ -70,7 +70,7 @@ const LEVELS := [
 		],
 	},
 	{
-		"name": "VR-04  TRIPWIRE",
+		"name": "VO-04  TRIPWIRE",
 		"brief": "Lasers cycle on and off. Touch a live beam and the alarm trips.",
 		"lasers": {"on": 1.6, "off": 1.6, "stagger": 0.5},
 		"map": [
@@ -87,7 +87,7 @@ const LEVELS := [
 		],
 	},
 	{
-		"name": "VR-05  PATROL",
+		"name": "VO-05  PATROL",
 		"brief": "Guards walk set routes and stop to look around. Never bump into one.",
 		"soldiers": [
 			[[3, 5], [20, 5]],
@@ -108,7 +108,7 @@ const LEVELS := [
 		],
 	},
 	{
-		"name": "VR-06  EYE IN THE SKY",
+		"name": "VO-06  EYE IN THE SKY",
 		"brief": "Drones fly over walls and see everything in their spotlight.",
 		"drones": [
 			[[3, 2], [14, 2], [14, 8], [3, 8]],
@@ -128,7 +128,7 @@ const LEVELS := [
 		],
 	},
 	{
-		"name": "VR-07  KEYCARD",
+		"name": "VO-07  KEYCARD",
 		"brief": "The exit is locked. Take the keycard from the vault.",
 		"soldiers": [
 			[[9, 2], [16, 2], [16, 8], [9, 8]],
@@ -147,7 +147,7 @@ const LEVELS := [
 		],
 	},
 	{
-		"name": "VR-08  TURRET",
+		"name": "VO-08  TURRET",
 		"brief": "The turret never stops turning. Move behind its back.",
 		"turret": {"speed": 0.9, "range": 6.0},
 		"lasers": {"on": 1.2, "off": 2.0, "stagger": 0.8},
@@ -166,7 +166,7 @@ const LEVELS := [
 		],
 	},
 	{
-		"name": "VR-09  LABYRINTH",
+		"name": "VO-09  LABYRINTH",
 		"brief": "Cameras, a guard and a drone in a maze. Plan your route.",
 		"soldiers": [
 			[[5, 8], [14, 8]],
@@ -190,7 +190,7 @@ const LEVELS := [
 		],
 	},
 	{
-		"name": "VR-10  FINAL EXAM",
+		"name": "VO-10  FINAL EXAM",
 		"brief": "Everything at once. Keycard first, then the vault. Good luck.",
 		"turret": {"speed": 0.7, "range": 4.5},
 		"lasers": {"on": 1.4, "off": 1.8, "stagger": 0.6},

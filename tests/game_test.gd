@@ -35,7 +35,7 @@ func _run() -> void:
 
 
 func _test_camera_and_hiding() -> void:
-	# VR-01: one camera at the top looking down. Freeze its sweep and park the
+	# VO-01: one camera at the top looking down. Freeze its sweep and park the
 	# box two tiles in front of it.
 	game.load_level(0)
 	await _frames(2)

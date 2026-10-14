@@ -1,5 +1,5 @@
 extends Node2D
-## Runs the VR missions: builds a level from its map, tracks how close the
+## Runs the Virtual Ops missions: builds a level from its map, tracks how close the
 ## enemies are to spotting the box, and handles the alert, mission complete
 ## and mission select flow.
 
@@ -279,7 +279,7 @@ func _complete_mission() -> void:
 		_show_banner("MISSION COMPLETE\n%s\n\npress ENTER for next mission" % time_line, Color("4dff9a"))
 	else:
 		state = State.FINISHED
-		_show_banner("ALL VR MISSIONS COMPLETE\n%s\n\npress ENTER for mission select" % time_line, Color("4dff9a"))
+		_show_banner("ALL VIRTUAL OPS COMPLETE\n%s\n\npress ENTER for mission select" % time_line, Color("4dff9a"))
 	if _dev_flag("exit-on-end"):
 		_end_run("complete", 2.0)
 

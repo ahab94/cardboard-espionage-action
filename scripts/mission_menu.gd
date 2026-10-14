@@ -1,5 +1,5 @@
 extends Control
-## Mission select overlay: every VR mission with its best time. Locked
+## Mission select overlay: every Virtual Ops mission with its best time. Locked
 ## missions are shown but can't be started. The game handles the input and
 ## calls open() / move().
 
@@ -29,7 +29,7 @@ func _ready() -> void:
 	var subtitle := _label(Vector2(0, 74), 16, DIM)
 	subtitle.size.x = size.x
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	subtitle.text = "V R   M I S S I O N S"
+	subtitle.text = "V I R T U A L   O P S"
 	var footer := _label(Vector2(0, size.y - 52), 15, DIM)
 	footer.size.x = size.x
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
