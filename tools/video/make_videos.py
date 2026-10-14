@@ -35,6 +35,7 @@ def sfx_path(name):
     raise FileNotFoundError(name)
 
 PLAY = "https://ahab94.github.io/cardboard-espionage-action/"
+PLAY_SHORT = "ahab94.github.io/cardboard-espionage-action"   # shown on screen
 REPO = "https://github.com/ahab94/cardboard-espionage-action"
 RELEASES = REPO + "/releases/latest"
 
@@ -51,7 +52,9 @@ LINKS = f"""▶ Play FREE in your browser (no download): {PLAY}
 
 
 def description(blurb, tags):
-    return f"""{blurb}
+    return f"""▶ PLAY FREE in your browser: {PLAY}
+
+{blurb}
 
 {LINKS}
 
@@ -287,6 +290,19 @@ def caption_png(path, text, style, orient):
         draw_centered(d, lines, H * 0.39, 48, (200, 220, 230), W, stroke=6)
     elif style == "counter":
         draw_centered(d, lines, H * 0.84, 110, GREEN, W, stroke=12)
+    elif style == "cta":   # call to action with the play link, above the Shorts UI
+        cy = H * (0.66 if portrait else 0.78)
+        f1, f2 = font(52 if portrait else 60), font(36 if portrait else 38)
+        l1, l2 = "PLAY FREE IN YOUR BROWSER", PLAY_SHORT
+        w = max(d.textlength(l1, font=f1), d.textlength(l2, font=f2)) + 140
+        w = min(w, W - 60)
+        h = 190 if portrait else 175
+        d.rounded_rectangle([(W - w) / 2, cy - h / 2, (W + w) / 2, cy + h / 2], 30, fill=(255, 216, 74, 245))
+        # a drawn "play" triangle, since the font has no symbol for it
+        tx = (W - d.textlength(l1, font=f1)) / 2 - 10
+        d.polygon([(tx - 46, cy - 62), (tx - 46, cy - 18), (tx - 8, cy - 40)], fill=INK)
+        d.text(((W - d.textlength(l1, font=f1)) / 2 + 12, cy - 75), l1, font=f1, fill=INK)
+        d.text(((W - d.textlength(l2, font=f2)) / 2, cy + 18), l2, font=f2, fill=(20, 40, 60))
     elif style == "low":   # landscape lower-third
         size = 76
         f = font(size)
@@ -336,8 +352,9 @@ def card_png(path, orient, title_lines, kind):
                       H * (0.42 if portrait else 0.44), 96 if portrait else 92, CYAN, W, stroke=10)
         draw_centered(d, ["PLAY FREE", "IN YOUR BROWSER"] if portrait else ["PLAY FREE IN YOUR BROWSER"],
                       H * (0.58 if portrait else 0.62), 84 if portrait else 78, YELLOW, W, stroke=10)
-        draw_centered(d, ["link in the description", "free & open source on GitHub"],
-                      H * (0.72 if portrait else 0.8), 52 if portrait else 46, (230, 240, 245), W, stroke=6)
+        draw_centered(d, [PLAY_SHORT], H * (0.69 if portrait else 0.75), 46 if portrait else 44, (255, 255, 255), W, stroke=6)
+        draw_centered(d, ["free & open source on GitHub"],
+                      H * (0.76 if portrait else 0.85), 44 if portrait else 40, (180, 210, 225), W, stroke=6)
     img.save(path)
 
 
@@ -432,14 +449,20 @@ def build(v, tmp):
     offset = v["intro"][1] if "intro" in v else 0.0   # captions are timed from the first gameplay frame
 
     # Captions: one transparent full-frame PNG each, shown over its time window.
+    # Every video ends with the play link on screen: links in Shorts
+    # descriptions aren't clickable, so viewers need to see the address.
+    gameplay_end = total - offset - (v.get("outro") or 0)
+    captions = list(v["captions"])
+    if not v.get("outro"):
+        captions.append((max(0.0, gameplay_end - 3.0), gameplay_end, "cta", "cta"))
     inputs, filters, last = [], [], "[0:v]"
-    for i, (t0, t1, text, style) in enumerate(v["captions"]):
+    for i, (t0, t1, text, style) in enumerate(captions):
         png = os.path.join(tmp, f"cap{i}.png")
         caption_png(png, text, style, v["orient"])
         inputs += ["-i", png]
         filters.append(f"{last}[{i + 1}:v]overlay=0:0:enable='between(t,{t0 + offset:.2f},{t1 + offset:.2f})'[v{i}]")
         last = f"[v{i}]"
-    n_caps = len(v["captions"])
+    n_caps = len(captions)
 
     # Audio: the clip's game sound effects (footage is recorded without game
     # music), a playful music bed, comedy stingers from the spec, a soft pop
