@@ -1,8 +1,15 @@
 # Builds the game for Windows, macOS, Linux and Web.
 # - Every push to main and every pull request: run the checks.
-# - A pushed tag like v0.2.0: also export all platforms, publish a GitHub
+# - A pushed tag like v0.1.0: also export all platforms, publish a GitHub
 #   Release with the zipped builds attached, and deploy the web build to Pages.
 # - Manual run (Actions tab): export and keep the builds as a workflow artifact.
+#
+# Security:
+# - The default token is read-only. Only the release job (tags only) can write,
+#   so pull-request runs never hold a write-capable token.
+# - Godot and its export templates are verified against pinned SHA-512 sums
+#   (from Godot's official SHA512-SUMS.txt) before use. When bumping
+#   GODOT_VERSION, update both sums.
 name: Build
 
 on:
@@ -13,10 +20,12 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 env:
   GODOT_VERSION: 4.7.2
+  GODOT_SHA512: 9aa00f7a605200940bce3027a567b782f49bd8e940dd06ae9e987bd65aee1b1467edd56ed84fcdcbdd44354bf613bdbb4e5d2913e925850368e150c59ed54c65
+  TEMPLATES_SHA512: ca4d71c4d7b81dfc15d1a98baa07534aa95b03fdda78a0075b06672e1648d2e5f40980c9adc28d23e1b92e732ee7bf3461997aa804af74ec2fcd7a93ccb84079
   GAME: CardboardEspionageAction
 
 jobs:
@@ -29,6 +38,7 @@ jobs:
         run: |
           base=https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable
           curl -fsSL -o godot.zip "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          echo "${GODOT_SHA512}  godot.zip" | sha512sum -c -
           unzip -q godot.zip
           sudo mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" /usr/local/bin/godot
           godot --version
@@ -44,6 +54,7 @@ jobs:
         run: |
           base=https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable
           curl -fsSL -o templates.tpz "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          echo "${TEMPLATES_SHA512}  templates.tpz" | sha512sum -c -
           dest="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
           mkdir -p "$dest"
           unzip -q templates.tpz
@@ -67,21 +78,33 @@ jobs:
           ls -la dist
           for f in dist/*.zip; do [ -s "$f" ] || { echo "empty build: $f"; exit 1; }; done
 
+      - name: Keep builds as an artifact
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: builds
+          path: dist/*.zip
+
       - name: Package the web build for GitHub Pages
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-pages-artifact@v3
         with:
           path: build/web
 
-      - name: Keep builds as an artifact
-        if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v4
+  # The only job that can write to the repo, and it only runs on version tags.
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
         with:
           name: builds
-          path: dist/*.zip
-
+          path: dist
       - name: Publish GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -94,8 +117,7 @@ jobs:
               --title "Cardboard Espionage Action ${GITHUB_REF_NAME}" --notes-file "$notes"
           fi
 
-  # Publishes the web build so the game is playable at
-  # https://ahab94.github.io/cardboard-espionage-action/
+  # Publishes the web build so the game is playable at https://ahab94.github.io/cardboard-espionage-action/
   pages:
     needs: build
     if: startsWith(github.ref, 'refs/tags/')
