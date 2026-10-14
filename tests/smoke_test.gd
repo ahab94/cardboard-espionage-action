@@ -7,7 +7,7 @@ func _init() -> void:
 		quit(1)
 		return
 	var main := packed.instantiate()
-	if main.get_node_or_null("TitleLabel") == null or main.get_node_or_null("Player") == null:
+	if main.get_node_or_null("TitleLabel") as Label == null or main.get_node_or_null("Player") == null:
 		push_error("missing TitleLabel or Player")
 		quit(1)
 		return
