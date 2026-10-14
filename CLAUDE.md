@@ -13,7 +13,7 @@ Top-down stealth game in Godot 4.7 (GDScript), a parody of MGS VR Missions: you 
   - `--screenshot=path.png` with optional `--wait=S`.
   - Add `--fixed-fps 60` (a Godot flag, before `--`) to run faster than real time.
 - Visuals: `godot --path . -- --level=N --screenshot=<scratchpad>/shot.png`, then Read the PNG. Godot windows launched from a terminal can't be seen by computer use; use the editor's Play button instead.
-- Demos: `bash tools/record_demos.sh` records autopilot runs with Movie Maker into `docs/media/` (needs ffmpeg).
+- Demos: `bash tools/record_demos.sh` records autopilot runs with Movie Maker into `docs/media/` GIFs plus `build/demos/full-playthrough.mp4` (needs ffmpeg). Upload the mp4 to each release as `CardboardEspionageAction-autopilot-playthrough.mp4`.
 - Release: pushing a `v*` tag runs `.github/workflows/release.yml`, which exports Windows/macOS/Linux/Web builds via `export_presets.cfg` and attaches them to a GitHub Release.
 
 ## Layout

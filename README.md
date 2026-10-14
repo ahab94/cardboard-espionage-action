@@ -2,7 +2,9 @@
 
 *A tactical cardboard box game.* A top-down stealth game inspired by Metal Gear Solid's VR Missions. You are a cardboard box. Sneak through 10 wireframe missions past sweeping cameras, patrolling guards, drones, laser tripwires and a spinning turret. When something looks your way, hold still: it's just a box.
 
-![Final Exam: turret, drone, camera, guard, lasers and a locked vault](docs/media/final-exam.png)
+![The autopilot beating VR-10 Final Exam (2x speed)](docs/media/demo.gif)
+
+*The built-in autopilot beating the Final Exam at 2× speed. [Watch it beat all 10 missions (3½ min)](../../releases/download/v0.2.0/CardboardEspionageAction-autopilot-playthrough.mp4).*
 
 ## Download
 Grab the latest build for **Windows, macOS, Linux or Web** from [Releases](../../releases).
@@ -29,10 +31,15 @@ Grab the latest build for **Windows, macOS, Linux or Web** from [Releases](../..
 - **Keycards** open the orange vault doors.
 
 ## Missions
-| | | |
-|---|---|---|
-| ![Pillars](docs/media/pillars.png) **VR-03 Pillars:** hide in the cameras' shadows | ![Tripwire](docs/media/tripwire.png) **VR-04 Tripwire:** time the laser waves | ![Patrol](docs/media/patrol.png) **VR-05 Patrol:** two guards, crossing routes |
-| ![Drones](docs/media/drones.png) **VR-06 Eye in the Sky:** drones ignore walls | ![Keycard](docs/media/keycard.png) **VR-07 Keycard:** raid the guarded vault | ![Turret](docs/media/turret.png) **VR-08 Turret:** stay behind its back |
+Each mission adds one new thing. All clips show the autopilot at 2× speed.
+
+| | |
+|---|---|
+| ![VR-01](docs/media/missions/vr-01.gif)<br>**VR-01 First Contact:** one sweeping camera | ![VR-02](docs/media/missions/vr-02.gif)<br>**VR-02 Hide in Plain Sight:** hold Space as cones pass |
+| ![VR-03](docs/media/missions/vr-03.gif)<br>**VR-03 Pillars:** hide in the cameras' shadows | ![VR-04](docs/media/missions/vr-04.gif)<br>**VR-04 Tripwire:** time the laser waves |
+| ![VR-05](docs/media/missions/vr-05.gif)<br>**VR-05 Patrol:** two guards on crossing routes | ![VR-06](docs/media/missions/vr-06.gif)<br>**VR-06 Eye in the Sky:** drones ignore walls |
+| ![VR-07](docs/media/missions/vr-07.gif)<br>**VR-07 Keycard:** raid the guarded vault | ![VR-08](docs/media/missions/vr-08.gif)<br>**VR-08 Turret:** stay behind its back |
+| ![VR-09](docs/media/missions/vr-09.gif)<br>**VR-09 Labyrinth:** cameras, a guard and a drone | ![VR-10](docs/media/missions/vr-10.gif)<br>**VR-10 Final Exam:** everything at once |
 
 Best times and unlocked missions are saved between sessions.
 
