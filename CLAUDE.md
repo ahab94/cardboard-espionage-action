@@ -1,6 +1,6 @@
 # Cardboard Espionage Action — notes for Claude
 
-Top-down stealth game in Godot 4.7 (GDScript), a parody of MGS VR Missions: you are a cardboard box sneaking past cameras, guards, drones and lasers through 10 maze missions. This is a long-term project; README.md holds the roadmap.
+Top-down stealth game in Godot 4.7 (GDScript): you are a cardboard box sneaking past cameras, guards, drones and lasers through 10 maze missions. This is a long-term project; README.md holds the roadmap.
 
 ## Run and check
 - Play: `godot --path .` (or open in the editor and press F5).

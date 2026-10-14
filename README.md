@@ -1,6 +1,6 @@
 # Cardboard Espionage Action
 
-*A tactical cardboard box game.* A top-down stealth game inspired by Metal Gear Solid's VR Missions. You are a cardboard box. Sneak through 10 wireframe missions past sweeping cameras, patrolling guards, drones, laser tripwires and a spinning turret. When something looks your way, hold still: it's just a box.
+A top-down stealth game where you are a cardboard box. Sneak through 10 wireframe missions past sweeping cameras, patrolling guards, drones, laser tripwires and a spinning turret. When something looks your way, hold still: it's just a box.
 
 ![The autopilot beating VR-10 Final Exam (2x speed)](docs/media/demo.gif)
 
@@ -66,4 +66,3 @@ bash checks/verify.sh          # tests + autopilot must beat every mission
 - [ ] Guards that chase and search after an alert
 - [ ] Larger scrolling maps and a level editor
 
-*A fan parody; not affiliated with Konami or Metal Gear.*
