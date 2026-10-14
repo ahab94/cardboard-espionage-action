@@ -8,7 +8,8 @@ const DIM := Color("4a6577")
 const ROW_HEIGHT := 40.0
 
 var selected := 0
-var screen_size := Vector2(1152, 648)   # set by the game before adding (portrait is 648x1152)
+var screen_size := Vector2(1152, 648)
+var touch := false   # show tap hints instead of keyboard hints   # set by the game before adding (portrait is 648x1152)
 
 var _levels: Array = []
 var _unlocked := 1
@@ -35,7 +36,7 @@ func _ready() -> void:
 	var footer := _label(Vector2(0, size.y - 52), 15, DIM)
 	footer.size.x = size.x
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	footer.text = "UP / DOWN choose     ENTER start     ESC back"
+	footer.text = "TAP a mission to play" if touch else "UP / DOWN choose     ENTER start     ESC back"
 
 
 func open(levels: Array, unlocked: int, best: Dictionary, current: int) -> void:
@@ -53,6 +54,19 @@ func open(levels: Array, unlocked: int, best: Dictionary, current: int) -> void:
 
 func move(step: int) -> void:
 	selected = clampi(selected + step, 0, _levels.size() - 1)
+	_refresh()
+
+
+## Which mission row is at `pos` (screen coordinates), or -1.
+func row_at(pos: Vector2) -> int:
+	var i := int(floor((pos.y - _rows_top() + 6.0) / ROW_HEIGHT))
+	if i < 0 or i >= _levels.size() or absf(pos.x - size.x * 0.5) > 300.0:
+		return -1
+	return i
+
+
+func select(index: int) -> void:
+	selected = index
 	_refresh()
 
 

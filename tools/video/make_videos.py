@@ -46,8 +46,7 @@ RED = (255, 51, 68)
 NAVY = (11, 42, 64)
 INK = (3, 10, 18)
 
-LINKS = f"""▶ Play FREE in your browser (no download): {PLAY}
-⭐ Open source on GitHub, a star helps a lot: {REPO}
+LINKS = f"""⭐ Open source on GitHub, a star helps a lot: {REPO}
 ⬇ Windows / Mac / Linux downloads: {RELEASES}"""
 
 

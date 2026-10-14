@@ -14,7 +14,6 @@ Upload as **Private** first, then publish after review.
 
 You are a cardboard box. Hold still when the cameras look your way!
 
-▶ Play FREE in your browser (no download): https://ahab94.github.io/cardboard-espionage-action/
 ⭐ Open source on GitHub, a star helps a lot: https://github.com/ahab94/cardboard-espionage-action
 ⬇ Windows / Mac / Linux downloads: https://github.com/ahab94/cardboard-espionage-action/releases/latest
 
@@ -36,7 +35,6 @@ Cardboard Espionage Action is a free, family-friendly stealth game where you pla
 
 A free stealth game where you play as a cardboard box. 10 missions, all in your browser.
 
-▶ Play FREE in your browser (no download): https://ahab94.github.io/cardboard-espionage-action/
 ⭐ Open source on GitHub, a star helps a lot: https://github.com/ahab94/cardboard-espionage-action
 ⬇ Windows / Mac / Linux downloads: https://github.com/ahab94/cardboard-espionage-action/releases/latest
 
@@ -58,7 +56,6 @@ Cardboard Espionage Action is a free, family-friendly stealth game where you pla
 
 I made a stealth game where you play as a cardboard box. Should I add more levels?
 
-▶ Play FREE in your browser (no download): https://ahab94.github.io/cardboard-espionage-action/
 ⭐ Open source on GitHub, a star helps a lot: https://github.com/ahab94/cardboard-espionage-action
 ⬇ Windows / Mac / Linux downloads: https://github.com/ahab94/cardboard-espionage-action/releases/latest
 
@@ -80,7 +77,6 @@ Cardboard Espionage Action is a free, family-friendly stealth game where you pla
 
 The secret to stealth: be a box. Hold still and the camera can barely tell!
 
-▶ Play FREE in your browser (no download): https://ahab94.github.io/cardboard-espionage-action/
 ⭐ Open source on GitHub, a star helps a lot: https://github.com/ahab94/cardboard-espionage-action
 ⬇ Windows / Mac / Linux downloads: https://github.com/ahab94/cardboard-espionage-action/releases/latest
 
@@ -102,7 +98,6 @@ Cardboard Espionage Action is a free, family-friendly stealth game where you pla
 
 Stealth is hard when you're a cardboard box. Can you do better? Play free below!
 
-▶ Play FREE in your browser (no download): https://ahab94.github.io/cardboard-espionage-action/
 ⭐ Open source on GitHub, a star helps a lot: https://github.com/ahab94/cardboard-espionage-action
 ⬇ Windows / Mac / Linux downloads: https://github.com/ahab94/cardboard-espionage-action/releases/latest
 
@@ -124,7 +119,6 @@ Cardboard Espionage Action is a free, family-friendly stealth game where you pla
 
 Lasers flicker right before they switch on. Time it right! Comment your best time.
 
-▶ Play FREE in your browser (no download): https://ahab94.github.io/cardboard-espionage-action/
 ⭐ Open source on GitHub, a star helps a lot: https://github.com/ahab94/cardboard-espionage-action
 ⬇ Windows / Mac / Linux downloads: https://github.com/ahab94/cardboard-espionage-action/releases/latest
 
@@ -146,7 +140,6 @@ Cardboard Espionage Action is a free, family-friendly stealth game where you pla
 
 Walls won't hide you from a drone. Stay out of the spotlight!
 
-▶ Play FREE in your browser (no download): https://ahab94.github.io/cardboard-espionage-action/
 ⭐ Open source on GitHub, a star helps a lot: https://github.com/ahab94/cardboard-espionage-action
 ⬇ Windows / Mac / Linux downloads: https://github.com/ahab94/cardboard-espionage-action/releases/latest
 
@@ -168,7 +161,6 @@ Cardboard Espionage Action is a free, family-friendly stealth game where you pla
 
 Guards walk set routes and look around. Never bump into one!
 
-▶ Play FREE in your browser (no download): https://ahab94.github.io/cardboard-espionage-action/
 ⭐ Open source on GitHub, a star helps a lot: https://github.com/ahab94/cardboard-espionage-action
 ⬇ Windows / Mac / Linux downloads: https://github.com/ahab94/cardboard-espionage-action/releases/latest
 
@@ -190,7 +182,6 @@ Cardboard Espionage Action is a free, family-friendly stealth game where you pla
 
 The turret spins forever. The trick: move when it's looking away!
 
-▶ Play FREE in your browser (no download): https://ahab94.github.io/cardboard-espionage-action/
 ⭐ Open source on GitHub, a star helps a lot: https://github.com/ahab94/cardboard-espionage-action
 ⬇ Windows / Mac / Linux downloads: https://github.com/ahab94/cardboard-espionage-action/releases/latest
 
@@ -212,7 +203,6 @@ Cardboard Espionage Action is a free, family-friendly stealth game where you pla
 
 Every mission, back to back. How fast can you beat it? Play free below!
 
-▶ Play FREE in your browser (no download): https://ahab94.github.io/cardboard-espionage-action/
 ⭐ Open source on GitHub, a star helps a lot: https://github.com/ahab94/cardboard-espionage-action
 ⬇ Windows / Mac / Linux downloads: https://github.com/ahab94/cardboard-espionage-action/releases/latest
 
@@ -234,7 +224,6 @@ Cardboard Espionage Action is a free, family-friendly stealth game where you pla
 
 Cameras, a turret, a drone, a guard, lasers and a locked vault. All at once.
 
-▶ Play FREE in your browser (no download): https://ahab94.github.io/cardboard-espionage-action/
 ⭐ Open source on GitHub, a star helps a lot: https://github.com/ahab94/cardboard-espionage-action
 ⬇ Windows / Mac / Linux downloads: https://github.com/ahab94/cardboard-espionage-action/releases/latest
 

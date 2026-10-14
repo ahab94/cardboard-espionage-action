@@ -30,6 +30,7 @@ func _run() -> void:
 	await _test_drone()
 	await _test_keycard()
 	await _test_spawns_are_safe()
+	await _test_touch_controls()
 	print("GAME OK" if failures == 0 else "GAME FAILED (%d)" % failures)
 	quit(0 if failures == 0 else 1)
 
@@ -139,6 +140,41 @@ func _test_spawns_are_safe() -> void:
 		await _frames(150)
 		_expect(game.state == game.State.PLAYING,
 				"%s: player is spotted while standing at the start" % Levels.LEVELS[i]["name"])
+
+
+func _test_touch_controls() -> void:
+	# The on-screen controls must drive the same actions the keyboard does.
+	var tc = load("res://scripts/touch_controls.gd").new()
+	root.add_child(tc)
+	tc.layout(Vector2(648, 1152), 922.0, Vector2(12, 7))
+	tc.playing = true
+	var taps := []
+	tc.tapped.connect(func(p): taps.append(p))
+	var finger := func(index: int, pos: Vector2, pressed: bool):
+		var ev := InputEventScreenTouch.new()
+		ev.index = index; ev.position = pos; ev.pressed = pressed
+		tc._input(ev)
+	var drag := func(index: int, pos: Vector2):
+		var ev := InputEventScreenDrag.new()
+		ev.index = index; ev.position = pos
+		tc._input(ev)
+	finger.call(0, tc.stick_center, true)
+	drag.call(0, tc.stick_center + Vector2(tc.STICK_RADIUS * 0.5, 0))
+	var half: Vector2 = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	drag.call(0, tc.stick_center + Vector2(tc.STICK_RADIUS * 2.0, 0))
+	var full: Vector2 = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	_expect(half.x > 0.2 and half.x < 0.8, "half-pushed joystick creeps right (got %.2f)" % half.x)
+	_expect(full.x > 0.95, "fully pushed joystick moves right at full speed (got %.2f)" % full.x)
+	finger.call(1, tc.hide_center, true)
+	_expect(Input.is_action_pressed("hide"), "holding the HIDE button hides, even while steering")
+	finger.call(1, tc.hide_center, false)
+	finger.call(0, tc.stick_center, false)
+	var after: Vector2 = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	_expect(not Input.is_action_pressed("hide") and after == Vector2.ZERO, "lifting fingers releases every control")
+	finger.call(2, Vector2(324, 500), true)
+	_expect(taps.size() == 1, "a tap away from the controls is reported as a tap")
+	tc.queue_free()
+	await _frames(1)
 
 
 # --- Static map checks ---------------------------------------------------

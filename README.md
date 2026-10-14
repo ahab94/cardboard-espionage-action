@@ -7,7 +7,7 @@ A top-down stealth game where you are a cardboard box. Sneak through 10 wirefram
 *The built-in autopilot beating the Final Exam at 2× speed. [Watch it beat all 10 missions (3½ min)](../../releases/download/v0.3.0/CardboardEspionageAction-autopilot-playthrough.mp4).*
 
 ## Play
-**▶ [Play in your browser](https://ahab94.github.io/cardboard-espionage-action/)**: nothing to install.
+**▶ [Play in your browser](https://ahab94.github.io/cardboard-espionage-action/)**: nothing to install. It works on phones too, with on-screen controls; hold your phone upright for the best view.
 
 Or install the desktop version with one command:
 
@@ -35,6 +35,7 @@ You can also download the zips directly from [Releases](../../releases). The mac
 | Hold Space (or Shift) | Hide in the box |
 | R | Restart mission |
 | M | Music on/off |
+| Phone / tablet | Joystick (bottom-left) to move, hold HIDE (bottom-right), pause button (top-left), tap to choose missions |
 | Esc | Mission select |
 | Enter | Next mission / start selected |
 
@@ -80,6 +81,7 @@ bash checks/verify.sh          # tests + autopilot must beat every mission
 - [x] v0.1: sweeping cameras, box hiding, detection meter
 - [x] v0.2: 10 missions, guards, drones, lasers, turrets, keycards, mission select, saves, autopilot, release builds
 - [x] v0.3: original adaptive music and sound effects
+- [x] v0.4: on-screen touch controls and a portrait layout for phones
 - [ ] Juice: screen shake on alert, camera-spotted flash
 - [ ] Noise: running is loud, creeping is quiet
 - [ ] Guards that chase and search after an alert

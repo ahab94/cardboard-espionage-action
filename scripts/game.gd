@@ -13,10 +13,10 @@ const Laser := preload("res://scripts/laser.gd")
 const Keycard := preload("res://scripts/keycard.gd")
 const Goal := preload("res://scripts/goal.gd")
 const MissionMenu := preload("res://scripts/mission_menu.gd")
+const TouchControls := preload("res://scripts/touch_controls.gd")
 const Autopilot := preload("res://scripts/autopilot.gd")
 const Sound := preload("res://scripts/sound.gd")
 
-const FOOTER_HEIGHT := 24.0
 # Portrait mode (dev flag --portrait) renders 9:16 for phones and Shorts: a
 # taller HUD, and a camera that follows the box, zoomed in.
 const PORTRAIT_ZOOM := 1.5
@@ -35,6 +35,8 @@ enum State { PLAYING, ALERT, COMPLETE, FINISHED, MENU }
 
 var screen := Vector2(1152, 648)   # layout size; window scaling stretches it to fit
 var hud_height := 48.0
+var footer_height := 24.0   # in portrait on a touch screen this band holds the controls
+var touch := false          # on-screen controls (phones/tablets, or --touch to test)
 var portrait := false
 var camera: Camera2D = null   # only in portrait mode
 var save_enabled := true   # tests turn this off so they never touch the real save
@@ -79,12 +81,20 @@ var _meter_fill: ColorRect
 var _meter_width := 230.0
 var _banner: Label
 var _menu
+var _touch = null   # scripts/touch_controls.gd when touch is on
 
 
 func _ready() -> void:
 	RenderingServer.set_default_clear_color(Maze.WALL_FILL)
-	if _dev_flag("portrait"):
+	touch = DisplayServer.is_touchscreen_available() or _dev_flag("touch")
+	if _dev_flag("touch"):
+		Input.emulate_touch_from_mouse = true  # lets a mouse stand in for a finger when testing
+	# A phone held upright gets the portrait layout automatically.
+	var win := DisplayServer.window_get_size()
+	if _dev_flag("portrait") or (touch and win.y > win.x and not _dev_flag("landscape")):
 		_enter_portrait()
+	if touch and portrait:
+		footer_height = 230.0
 	_setup_input()
 	_build_hud()
 	sound = Sound.new()
@@ -139,7 +149,7 @@ func load_level(index: int) -> void:
 		world.add_child(camera)
 		camera.make_current()
 	else:
-		var room := Vector2(screen.x, screen.y - hud_height - FOOTER_HEIGHT)
+		var room := Vector2(screen.x, screen.y - hud_height - footer_height)
 		world.position = Vector2(0, hud_height) + ((room - maze.pixel_size()) * 0.5).floor()
 
 	goal = Goal.new()
@@ -323,10 +333,10 @@ func _complete_mission() -> void:
 	var time_line := "TIME %s%s" % [_format_time(elapsed), record]
 	if level_index + 1 < Levels.LEVELS.size():
 		state = State.COMPLETE
-		_show_banner("MISSION COMPLETE\n%s\n\npress ENTER for next mission" % time_line, Color("4dff9a"))
+		_show_banner("MISSION COMPLETE\n%s\n\n" + _prompt("for next mission") % time_line, Color("4dff9a"))
 	else:
 		state = State.FINISHED
-		_show_banner("ALL VIRTUAL OPS COMPLETE\n%s\n\npress ENTER for mission select" % time_line, Color("4dff9a"))
+		_show_banner("ALL VIRTUAL OPS COMPLETE\n%s\n\n" + _prompt("for mission select") % time_line, Color("4dff9a"))
 	if _dev_flag("exit-on-end"):
 		_end_run("complete", 2.0)
 
@@ -457,13 +467,13 @@ func _build_hud() -> void:
 	hud.add_child(rule)
 	var footer := ColorRect.new()
 	footer.color = Color("071827")
-	footer.position = Vector2(0, screen.y - FOOTER_HEIGHT)
-	footer.size = Vector2(screen.x, FOOTER_HEIGHT)
+	footer.position = Vector2(0, screen.y - footer_height)
+	footer.size = Vector2(screen.x, footer_height)
 	hud.add_child(footer)
 
 	# Landscape: one row. Portrait: title on top, time and meter below it.
 	var row2 := 44.0 if portrait else 0.0
-	_title_label = _make_label(hud, Vector2(20, 10), 22, Color("46d6ff"))
+	_title_label = _make_label(hud, Vector2(64 if touch else 20, 10), 22, Color("46d6ff"))
 	_time_label = _make_label(hud, Vector2(20 if portrait else 470, 10 + row2), 22, Color.WHITE)
 	_key_label = _make_label(hud, Vector2(196 if portrait else 660, 15 + row2), 14, Color("4a6577"))
 	_key_label.text = "KEYCARD"
@@ -481,18 +491,24 @@ func _build_hud() -> void:
 	_meter_fill.size = Vector2(0, 16)
 	hud.add_child(_meter_fill)
 
-	_brief_label = _make_label(hud, Vector2(20, screen.y - 21), 13, Color("8fb8cc"))
+	_brief_label = _make_label(hud, Vector2(20, screen.y - footer_height + 3), 13, Color("8fb8cc"))
 	var controls := _make_label(hud, Vector2(screen.x - 520, screen.y - 21), 13, Color("4a6577"))
 	controls.size.x = 500
 	controls.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	controls.text = "WASD move   SPACE hide   R restart   M music   ESC missions"
-	controls.visible = not portrait  # no room beside the briefing
+	controls.visible = not portrait and not touch  # no room beside the briefing; no keyboard on a phone
 
 	_toast = _make_label(hud, Vector2(0, hud_height + 10), 20, Color("ffd84a"))
 	_toast.size.x = screen.x
 	_toast.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_toast.add_theme_constant_override("outline_size", 8)
 	_toast.add_theme_color_override("font_outline_color", Color("030a12"))
+
+	if touch:
+		_touch = TouchControls.new()
+		hud.add_child(_touch)
+		_touch.layout(screen, screen.y - footer_height + 24.0, Vector2(12, 7))
+		_touch.tapped.connect(_on_tap)
 
 	_banner = Label.new()
 	_banner.size = screen
@@ -506,6 +522,7 @@ func _build_hud() -> void:
 
 	_menu = MissionMenu.new()
 	_menu.screen_size = screen
+	_menu.touch = touch
 	_menu.visible = false
 	hud.add_child(_menu)
 
@@ -531,12 +548,40 @@ func _show_toast(text: String) -> void:
 
 
 func _update_hud(delta: float) -> void:
+	if _touch:
+		var on := state == State.PLAYING
+		if on != _touch.playing:
+			_touch.playing = on
+			if not on:
+				_touch.release_all()  # never leave a finger "stuck" on a control
+			_touch.queue_redraw()
 	_time_label.text = "TIME " + _format_time(elapsed)
 	_meter_fill.size.x = _meter_width * detection
 	_meter_fill.color = Color("4dff9a").lerp(Color("ffd84a"), minf(detection * 2.0, 1.0)) \
 			if detection < 0.5 else Color("ffd84a").lerp(Color("ff3344"), (detection - 0.5) * 2.0)
 	_toast_timer = maxf(_toast_timer - delta, 0.0)
 	_toast.modulate.a = clampf(_toast_timer, 0.0, 1.0)
+
+
+func _prompt(what: String) -> String:
+	return ("tap " if touch else "press ENTER ") + what
+
+
+## Taps that didn't land on a control: pick missions and dismiss banners.
+func _on_tap(pos: Vector2) -> void:
+	match state:
+		State.MENU:
+			var i: int = _menu.row_at(pos)
+			if i >= 0 and _menu.is_unlocked(i):
+				sound.play("menu_select")
+				load_level.call_deferred(i)
+			elif i >= 0:
+				_menu.select(i)
+				sound.play("menu_move")
+		State.COMPLETE:
+			load_level.call_deferred(level_index + 1)
+		State.FINISHED:
+			open_menu()
 
 
 func _format_time(t: float) -> String:
@@ -551,7 +596,7 @@ func _enter_portrait() -> void:
 	hud_height = 84.0
 	# Godot scales this layout size up to the real window (e.g. 1080x1920).
 	get_window().content_scale_size = Vector2i(screen)
-	if Engine.get_write_movie_path() == "":
+	if _dev_flag("portrait") and Engine.get_write_movie_path() == "" and OS.get_name() != "Web":
 		DisplayServer.window_set_size(Vector2i(540, 960))
 
 
@@ -561,9 +606,9 @@ func _update_camera(delta: float) -> void:
 	if camera == null or player == null:
 		return
 	var zoom := PORTRAIT_ZOOM
-	var view := Vector2(screen.x, screen.y - hud_height - FOOTER_HEIGHT) / zoom
+	var view := Vector2(screen.x, screen.y - hud_height - footer_height) / zoom
 	# The usable area's centre sits below the screen centre by this much (in world units).
-	var shift := ((hud_height - FOOTER_HEIGHT) * 0.5) / zoom
+	var shift := ((hud_height - footer_height) * 0.5) / zoom
 	var map: Vector2 = maze.pixel_size()
 	var want := Vector2.ZERO
 	for axis in 2:
@@ -594,7 +639,8 @@ func _setup_input() -> void:
 	for action in bindings:
 		if InputMap.has_action(action):
 			continue
-		InputMap.add_action(action)
+		# A low deadzone on movement lets a half-pushed joystick creep slowly.
+		InputMap.add_action(action, 0.2 if action.begins_with("move_") else 0.5)
 		for key in bindings[action]:
 			var ev := InputEventKey.new()
 			ev.physical_keycode = key
