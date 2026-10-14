@@ -51,6 +51,8 @@ func _test_camera_and_hiding() -> void:
 	Input.action_release("hide")
 	await _frames(10)
 	_expect(game.detection - mark > 0.3, "standing in view fills detection fast")
+	_expect(game.sound.current_music() == "mission", "mission music plays during a mission")
+	_expect(game.sound.tension_level > 0.1, "tension music rises while being spotted")
 
 	# Walls block sight: give the camera a full-circle view, then test a point
 	# behind the divider wall vs. one in open view.

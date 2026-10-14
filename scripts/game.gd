@@ -14,6 +14,7 @@ const Keycard := preload("res://scripts/keycard.gd")
 const Goal := preload("res://scripts/goal.gd")
 const MissionMenu := preload("res://scripts/mission_menu.gd")
 const Autopilot := preload("res://scripts/autopilot.gd")
+const Sound := preload("res://scripts/sound.gd")
 
 const SCREEN := Vector2(1152, 648)
 const HUD_HEIGHT := 48.0
@@ -55,6 +56,13 @@ var _alert_timer := 0.0
 var _alerts := 0          # alerts this session, for autopilot reports
 var _run_time := 0.0
 var _ending := false
+
+var sound   # music and sound effects (scripts/sound.gd)
+# Edge detection for sound cues: we play a sound when something *changes*.
+var _was_seen := false
+var _was_hidden := false
+var _step_timer := 0.0
+var _laser_was_on: Array[bool] = []
 var _resume_state := State.PLAYING
 var _toast_timer := 0.0
 var _title_label: Label
@@ -71,6 +79,8 @@ func _ready() -> void:
 	RenderingServer.set_default_clear_color(Maze.WALL_FILL)
 	_setup_input()
 	_build_hud()
+	sound = Sound.new()
+	add_child(sound)
 	if _dev_flag("autopilot"):
 		save_enabled = false  # demo runs must not touch the player's save
 	_load_progress()
@@ -146,6 +156,14 @@ func load_level(index: int) -> void:
 		drones.append(drone)
 	watchers.append_array(drones)
 
+	_laser_was_on.clear()
+	for laser in lasers:
+		_laser_was_on.append(laser.is_active())
+	_was_seen = false
+	_was_hidden = false
+	sound.set_drone_count(drones.size())
+	sound.play_music("mission")
+
 	_title_label.text = data["name"]
 	_brief_label.text = data.get("brief", "")
 	_key_label.visible = keycard != null
@@ -215,6 +233,7 @@ func _physics_process(delta: float) -> void:
 			_alert_timer -= delta
 			if _alert_timer <= 0.0:
 				load_level(level_index)
+	_update_audio(delta)
 	_update_hud(delta)
 
 
@@ -240,10 +259,13 @@ func _update_stealth(delta: float) -> void:
 		if h.touches(player):
 			detection = 1.0
 	player.alert_mark = "?" if seen else ""
+	_play_cues(seen, hidden, delta)
 
 	if keycard and not keycard.collected and player.position.distance_to(keycard.position) < Maze.TILE * 0.6:
 		keycard.collected = true
 		maze.open_doors()
+		sound.play("keycard")
+		get_tree().create_timer(0.35).timeout.connect(sound.play.bind("door", -2.0))
 		_key_label.add_theme_color_override("font_color", Color("ffd84a"))
 		_show_toast("KEYCARD ACQUIRED  -  vault door unlocked")
 
@@ -261,12 +283,16 @@ func _raise_alert() -> void:
 	player.alert_mark = "!"
 	for w in watchers:
 		w.alarmed = true
+	sound.play_music("")
+	sound.play("alert")
 	_show_banner("!  ALERT  !", Color("ff3344"))
 
 
 func _complete_mission() -> void:
 	player.controllable = false
 	player.alert_mark = ""
+	sound.play_music("")
+	sound.play("complete")
 	var record := ""
 	if not best_times.has(level_index) or elapsed < best_times[level_index]:
 		best_times[level_index] = elapsed
@@ -290,6 +316,7 @@ func open_menu() -> void:
 	_resume_state = state
 	state = State.MENU
 	player.controllable = false
+	sound.play_music("menu")
 	_menu.open(Levels.LEVELS, unlocked, best_times, level_index)
 
 
@@ -297,20 +324,27 @@ func _close_menu() -> void:
 	_menu.visible = false
 	state = _resume_state
 	player.controllable = state == State.PLAYING
+	if state == State.PLAYING:
+		sound.play_music("mission")
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if state == State.MENU:
 		if event.is_action_pressed("move_up"):
 			_menu.move(-1)
+			sound.play("menu_move")
 		elif event.is_action_pressed("move_down"):
 			_menu.move(1)
+			sound.play("menu_move")
 		elif event.is_action_pressed("confirm") and _menu.is_unlocked(_menu.selected):
+			sound.play("menu_select")
 			load_level.call_deferred(_menu.selected)
 		elif event.is_action_pressed("menu"):
 			_close_menu()
 		return
-	if event.is_action_pressed("menu"):
+	if event.is_action_pressed("music"):
+		_show_toast("MUSIC ON" if sound.toggle_music() else "MUSIC OFF")
+	elif event.is_action_pressed("menu"):
 		open_menu()
 	elif event.is_action_pressed("restart"):
 		load_level.call_deferred(level_index)
@@ -319,6 +353,43 @@ func _unhandled_input(event: InputEvent) -> void:
 			load_level.call_deferred(level_index + 1)
 		elif state == State.FINISHED:
 			open_menu()
+
+
+# --- Sound cues ------------------------------------------------------------
+
+func _play_cues(seen: bool, hidden: bool, delta: float) -> void:
+	if seen and not _was_seen:
+		sound.play("suspicious", -4.0)
+	if hidden and not _was_hidden:
+		sound.play("hide", -3.0, 0.05)
+	_was_seen = seen
+	_was_hidden = hidden
+
+	# Cardboard scuffs while walking.
+	_step_timer -= delta
+	if player.velocity.length() > 10.0 and _step_timer <= 0.0:
+		sound.play("step", -9.0, 0.18)
+		_step_timer = 0.21
+
+	# Lasers zap as they switch on; nearer beams are louder, far ones silent.
+	for i in lasers.size():
+		var on: bool = lasers[i].is_active()
+		if on and not _laser_was_on[i]:
+			var mid: Vector2 = (lasers[i].from + lasers[i].to) * 0.5
+			var near: float = 1.0 - player.position.distance_to(mid) / (5.0 * Maze.TILE)
+			if near > 0.0:
+				sound.play("laser", linear_to_db(near) - 6.0, 0.05)
+		_laser_was_on[i] = on
+
+
+func _update_audio(delta: float) -> void:
+	# The tension layer rises with detection and lingers a little after.
+	var danger := detection * 1.6 if state == State.PLAYING else 0.0
+	sound.set_tension(danger, delta)
+	for i in drones.size():
+		var d: float = player.position.distance_to(drones[i].position)
+		var loud := clampf(1.0 - d / (7.0 * Maze.TILE), 0.0, 1.0)
+		sound.set_drone_volume(i, loud * loud * 0.7 if state != State.MENU else 0.0)
 
 
 # --- Save data -------------------------------------------------------------
@@ -387,7 +458,7 @@ func _build_hud() -> void:
 	var controls := _make_label(hud, Vector2(SCREEN.x - 520, SCREEN.y - 21), 13, Color("4a6577"))
 	controls.size.x = 500
 	controls.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	controls.text = "WASD move   SPACE hide   R restart   ESC missions"
+	controls.text = "WASD move   SPACE hide   R restart   M music   ESC missions"
 
 	_toast = _make_label(hud, Vector2(0, HUD_HEIGHT + 10), 20, Color("ffd84a"))
 	_toast.size.x = SCREEN.x
@@ -457,6 +528,7 @@ func _setup_input() -> void:
 		"restart": [KEY_R],
 		"confirm": [KEY_ENTER, KEY_KP_ENTER],
 		"menu": [KEY_ESCAPE],
+		"music": [KEY_M],
 	}
 	for action in bindings:
 		if InputMap.has_action(action):

@@ -34,6 +34,7 @@ You can also download the zips directly from [Releases](../../releases). The mac
 | Arrows / WASD | Move |
 | Hold Space (or Shift) | Hide in the box |
 | R | Restart mission |
+| M | Music on/off |
 | Esc | Mission select |
 | Enter | Next mission / start selected |
 
@@ -44,6 +45,9 @@ You can also download the zips directly from [Releases](../../releases). The mac
 - **Drones** fly over walls and see everything inside their spotlight.
 - **Lasers** cycle on and off and flicker just before they fire. Touching a live beam trips the alarm, even while hiding.
 - **Keycards** open the orange vault doors.
+
+## Sound
+All music and sound effects are original, synthesized from scratch by [`tools/make_audio.py`](tools/make_audio.py) using Python's standard library: oscillators and noise, no samples. The music adapts as you play: a quiet stealth loop, with a synced tension layer of drums and strings that swells as the detection meter fills.
 
 ## Missions
 Each mission adds one new thing. All clips show the autopilot at 2× speed.
@@ -61,7 +65,7 @@ Best times and unlocked missions are saved between sessions.
 ![Mission select](docs/media/mission-select.png)
 
 ## Development
-Built with [Godot 4.7](https://godotengine.org) in GDScript. There are no art assets: everything is drawn in code.
+Built with [Godot 4.7](https://godotengine.org) in GDScript. There are no art assets: everything is drawn in code, and all audio is synthesized by a script.
 
 ```bash
 godot --path .                 # play
@@ -75,7 +79,7 @@ bash checks/verify.sh          # tests + autopilot must beat every mission
 ## Roadmap
 - [x] v0.1: sweeping cameras, box hiding, detection meter
 - [x] v0.2: 10 missions, guards, drones, lasers, turrets, keycards, mission select, saves, autopilot, release builds
-- [ ] Sound: alert "!" sting, footsteps, laser hum
+- [x] v0.3: original adaptive music and sound effects
 - [ ] Juice: screen shake on alert, camera-spotted flash
 - [ ] Noise: running is loud, creeping is quiet
 - [ ] Guards that chase and search after an alert
