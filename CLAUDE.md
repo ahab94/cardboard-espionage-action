@@ -7,12 +7,13 @@ Top-down stealth game in Godot 4.7 (GDScript): you are a cardboard box sneaking 
 - Every change: `bash checks/verify.sh` must end with `godot-sandbox: all good` (~40s). It runs the smoke test, `tests/game_test.gd` (mechanics plus map validation), and `checks/autoplay.sh`, which has the autopilot beat every mission with zero alerts. If autoplay fails after a level change, the level is probably unwinnable; trace it with `--trace`.
 - Dev flags go after `--`:
   - `--level=N` (0-based) skips the menu.
-  - `--autopilot` has the bot play; add `--trace` to log its plan.
+  - `--autopilot` has the bot play; add `--trace` to log its plan, or `--reckless` to make it walk straight in and get caught (for fail clips).
   - `--exit-on-end` prints `RESULT level=… complete|timeout time=… alerts=…` and quits.
   - `--timeout=S`
   - `--screenshot=path.png` with optional `--wait=S`.
   - Add `--fixed-fps 60` (a Godot flag, before `--`) to run faster than real time.
 - Visuals: `godot --path . -- --level=N --screenshot=<scratchpad>/shot.png`, then Read the PNG. Godot windows launched from a terminal can't be seen by computer use; use the editor's Play button instead.
+- Marketing videos: `bash tools/video/record_footage.sh` (raw 9:16 + 16:9 gameplay, game SFX only), `/usr/bin/python3 tools/video/make_video_audio.py` (comedy SFX + sneaky theme), `/usr/bin/python3 tools/video/make_videos.py` (cuts, captions, mix into build/videos/, metadata in docs/marketing/youtube.md). Needs Pillow for `/usr/bin/python3`. `--no-music`, `--portrait` and `--log-events` exist for this.
 - Demos: `bash tools/record_demos.sh` records autopilot runs with Movie Maker into `docs/media/` GIFs plus `build/demos/full-playthrough.mp4` (needs ffmpeg). Upload the mp4 to each release as `CardboardEspionageAction-autopilot-playthrough.mp4`.
 - Release: pushing a `v*` tag runs `.github/workflows/release.yml`, which exports Windows/macOS/Linux/Web builds via `export_presets.cfg` and attaches them to a GitHub Release, and deploys the web build to https://ahab94.github.io/cardboard-espionage-action/. Write `docs/releases/<tag>.md` before tagging. `install.sh` and `install.ps1` install the latest release in one command.
 

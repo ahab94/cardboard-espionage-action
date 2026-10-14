@@ -8,6 +8,7 @@ const DIM := Color("4a6577")
 const ROW_HEIGHT := 40.0
 
 var selected := 0
+var screen_size := Vector2(1152, 648)   # set by the game before adding (portrait is 648x1152)
 
 var _levels: Array = []
 var _unlocked := 1
@@ -17,16 +18,17 @@ var _times: Array[Label] = []
 
 
 func _ready() -> void:
-	size = Vector2(1152, 648)
+	size = screen_size
 	var dim := ColorRect.new()
 	dim.color = Color(0.01, 0.04, 0.07, 0.93)
 	dim.size = size
 	add_child(dim)
-	var title := _label(Vector2(0, 22), 40, CYAN)
+	var y0 := _rows_top()
+	var title := _label(Vector2(0, y0 - 96), 40 if size.x > size.y else 30, CYAN)
 	title.size.x = size.x
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.text = "CARDBOARD ESPIONAGE ACTION"
-	var subtitle := _label(Vector2(0, 74), 16, DIM)
+	var subtitle := _label(Vector2(0, y0 - 44), 16, DIM)
 	subtitle.size.x = size.x
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	subtitle.text = "V I R T U A L   O P S"
@@ -42,9 +44,9 @@ func open(levels: Array, unlocked: int, best: Dictionary, current: int) -> void:
 	_best = best
 	selected = current
 	while _names.size() < levels.size():
-		var y := 118.0 + _names.size() * ROW_HEIGHT
-		_names.append(_label(Vector2(340, y), 22, CYAN))
-		_times.append(_label(Vector2(700, y + 3), 18, CYAN))
+		var y := _rows_top() + _names.size() * ROW_HEIGHT
+		_names.append(_label(Vector2(size.x * 0.5 - 236, y), 22, CYAN))
+		_times.append(_label(Vector2(size.x * 0.5 + 124, y + 3), 18, CYAN))
 	_refresh()
 	visible = true
 
@@ -72,6 +74,10 @@ func _refresh() -> void:
 		var color := Color.WHITE if here and open_ else (CYAN if open_ else DIM)
 		_names[i].add_theme_color_override("font_color", color)
 		_times[i].add_theme_color_override("font_color", color if open_ else DIM)
+
+
+func _rows_top() -> float:
+	return size.y * 0.5 - 206.0   # centres the list; 118 in landscape
 
 
 func _label(pos: Vector2, font_size: int, color: Color) -> Label:

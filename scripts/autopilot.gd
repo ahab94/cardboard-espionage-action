@@ -21,6 +21,7 @@ const DIRS := [Vector2i.ZERO, Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector
 
 var game
 var trace := false   # print decisions a few times a second (dev flag --trace)
+var reckless := false  # ignore all danger and walk straight in: for recording "caught!" clips (--reckless)
 
 var _step := 0.0     # seconds per step: one tile at a little under full speed
 var _plan: Array[Vector2i] = []
@@ -65,7 +66,7 @@ func _physics_process(delta: float) -> void:
 	var to: Vector2 = want - player.position
 	if to.length() > 1.0:
 		player.bot_move = to.normalized()
-	elif _plan[j] == _plan[j + 1] and _seen_now():
+	elif _plan[j] == _plan[j + 1] and _seen_now() and not reckless:
 		player.bot_hide = true  # the forecast was off: freeze and let the cone pass
 
 	if trace and Engine.get_physics_frames() % 15 == 0:
@@ -134,6 +135,8 @@ func _safe_move(a: Vector2i, b: Vector2i, k: int) -> bool:
 
 
 func _safe(tile: Vector2i, k: int) -> bool:
+	if reckless:
+		return true
 	var key := Vector3i(tile.x, tile.y, k)
 	if _safe_cache.has(key):
 		return _safe_cache[key]

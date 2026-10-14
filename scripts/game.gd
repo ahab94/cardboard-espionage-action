@@ -16,9 +16,10 @@ const MissionMenu := preload("res://scripts/mission_menu.gd")
 const Autopilot := preload("res://scripts/autopilot.gd")
 const Sound := preload("res://scripts/sound.gd")
 
-const SCREEN := Vector2(1152, 648)
-const HUD_HEIGHT := 48.0
 const FOOTER_HEIGHT := 24.0
+# Portrait mode (dev flag --portrait) renders 9:16 for phones and Shorts: a
+# taller HUD, and a camera that follows the box, zoomed in.
+const PORTRAIT_ZOOM := 1.5
 const SAVE_PATH := "user://progress.cfg"
 
 # Detection is a 0..1 meter rather than instant game over: it fills fast while
@@ -32,6 +33,10 @@ const ALERT_RESTART_DELAY := 1.6
 
 enum State { PLAYING, ALERT, COMPLETE, FINISHED, MENU }
 
+var screen := Vector2(1152, 648)   # layout size; window scaling stretches it to fit
+var hud_height := 48.0
+var portrait := false
+var camera: Camera2D = null   # only in portrait mode
 var save_enabled := true   # tests turn this off so they never touch the real save
 var level_index := 0
 var state := State.PLAYING
@@ -71,16 +76,20 @@ var _key_label: Label
 var _brief_label: Label
 var _toast: Label
 var _meter_fill: ColorRect
+var _meter_width := 230.0
 var _banner: Label
 var _menu
 
 
 func _ready() -> void:
 	RenderingServer.set_default_clear_color(Maze.WALL_FILL)
+	if _dev_flag("portrait"):
+		_enter_portrait()
 	_setup_input()
 	_build_hud()
 	sound = Sound.new()
 	add_child(sound)
+	sound.music_on = not _dev_flag("no-music")  # recordings for videos add their own music
 	if _dev_flag("autopilot"):
 		save_enabled = false  # demo runs must not touch the player's save
 	_load_progress()
@@ -94,6 +103,7 @@ func _ready() -> void:
 		var bot = Autopilot.new()
 		bot.game = self
 		bot.trace = _dev_flag("trace")
+		bot.reckless = _dev_flag("reckless")
 		add_child(bot)
 	var shot := _dev_arg("screenshot", "")
 	if shot != "":
@@ -123,8 +133,14 @@ func load_level(index: int) -> void:
 	maze = Maze.new()
 	world.add_child(maze)
 	maze.build(data["map"])
-	var room := Vector2(SCREEN.x, SCREEN.y - HUD_HEIGHT - FOOTER_HEIGHT)
-	world.position = Vector2(0, HUD_HEIGHT) + ((room - maze.pixel_size()) * 0.5).floor()
+	if portrait:
+		camera = Camera2D.new()
+		camera.zoom = Vector2(PORTRAIT_ZOOM, PORTRAIT_ZOOM)
+		world.add_child(camera)
+		camera.make_current()
+	else:
+		var room := Vector2(screen.x, screen.y - hud_height - FOOTER_HEIGHT)
+		world.position = Vector2(0, hud_height) + ((room - maze.pixel_size()) * 0.5).floor()
 
 	goal = Goal.new()
 	goal.position = maze.tile_center(maze.find_all("G")[0])
@@ -147,6 +163,7 @@ func load_level(index: int) -> void:
 	player = PlayerScript.new()
 	player.position = maze.tile_center(maze.find_all("P")[0])
 	world.add_child(player)
+	_update_camera(0.0)  # snap to the box at the start
 
 	# Drones go last so they draw over everything, the box included.
 	for route in data.get("drones", []):
@@ -234,6 +251,7 @@ func _physics_process(delta: float) -> void:
 			if _alert_timer <= 0.0:
 				load_level(level_index)
 	_update_audio(delta)
+	_update_camera(delta)
 	_update_hud(delta)
 
 
@@ -265,6 +283,7 @@ func _update_stealth(delta: float) -> void:
 		keycard.collected = true
 		maze.open_doors()
 		sound.play("keycard")
+		_log_event("keycard")
 		get_tree().create_timer(0.35).timeout.connect(sound.play.bind("door", -2.0))
 		_key_label.add_theme_color_override("font_color", Color("ffd84a"))
 		_show_toast("KEYCARD ACQUIRED  -  vault door unlocked")
@@ -285,6 +304,7 @@ func _raise_alert() -> void:
 		w.alarmed = true
 	sound.play_music("")
 	sound.play("alert")
+	_log_event("alert")
 	_show_banner("!  ALERT  !", Color("ff3344"))
 
 
@@ -293,6 +313,7 @@ func _complete_mission() -> void:
 	player.alert_mark = ""
 	sound.play_music("")
 	sound.play("complete")
+	_log_event("complete")
 	var record := ""
 	if not best_times.has(level_index) or elapsed < best_times[level_index]:
 		best_times[level_index] = elapsed
@@ -360,8 +381,10 @@ func _unhandled_input(event: InputEvent) -> void:
 func _play_cues(seen: bool, hidden: bool, delta: float) -> void:
 	if seen and not _was_seen:
 		sound.play("suspicious", -4.0)
+		_log_event("spotted")
 	if hidden and not _was_hidden:
 		sound.play("hide", -3.0, 0.05)
+		_log_event("hide")
 	_was_seen = seen
 	_was_hidden = hidden
 
@@ -425,58 +448,64 @@ func _build_hud() -> void:
 
 	var bar := ColorRect.new()
 	bar.color = Color("071827")
-	bar.size = Vector2(SCREEN.x, HUD_HEIGHT)
+	bar.size = Vector2(screen.x, hud_height)
 	hud.add_child(bar)
 	var rule := ColorRect.new()
 	rule.color = Color("46d6ff")
-	rule.position = Vector2(0, HUD_HEIGHT - 2)
-	rule.size = Vector2(SCREEN.x, 2)
+	rule.position = Vector2(0, hud_height - 2)
+	rule.size = Vector2(screen.x, 2)
 	hud.add_child(rule)
 	var footer := ColorRect.new()
 	footer.color = Color("071827")
-	footer.position = Vector2(0, SCREEN.y - FOOTER_HEIGHT)
-	footer.size = Vector2(SCREEN.x, FOOTER_HEIGHT)
+	footer.position = Vector2(0, screen.y - FOOTER_HEIGHT)
+	footer.size = Vector2(screen.x, FOOTER_HEIGHT)
 	hud.add_child(footer)
 
+	# Landscape: one row. Portrait: title on top, time and meter below it.
+	var row2 := 44.0 if portrait else 0.0
 	_title_label = _make_label(hud, Vector2(20, 10), 22, Color("46d6ff"))
-	_time_label = _make_label(hud, Vector2(470, 10), 22, Color.WHITE)
-	_key_label = _make_label(hud, Vector2(660, 15), 14, Color("4a6577"))
+	_time_label = _make_label(hud, Vector2(20 if portrait else 470, 10 + row2), 22, Color.WHITE)
+	_key_label = _make_label(hud, Vector2(196 if portrait else 660, 15 + row2), 14, Color("4a6577"))
 	_key_label.text = "KEYCARD"
 
-	_make_label(hud, Vector2(800, 14), 14, Color("8fb8cc")).text = "DETECTION"
+	_meter_width = 150.0 if portrait else 230.0
+	var meter_x := screen.x - _meter_width - 20
+	_make_label(hud, Vector2(meter_x - 100, 14 + row2), 14, Color("8fb8cc")).text = "DETECTION"
 	var meter_bg := ColorRect.new()
 	meter_bg.color = Color("10293a")
-	meter_bg.position = Vector2(900, 16)
-	meter_bg.size = Vector2(230, 16)
+	meter_bg.position = Vector2(meter_x, 16 + row2)
+	meter_bg.size = Vector2(_meter_width, 16)
 	hud.add_child(meter_bg)
 	_meter_fill = ColorRect.new()
 	_meter_fill.position = meter_bg.position
 	_meter_fill.size = Vector2(0, 16)
 	hud.add_child(_meter_fill)
 
-	_brief_label = _make_label(hud, Vector2(20, SCREEN.y - 21), 13, Color("8fb8cc"))
-	var controls := _make_label(hud, Vector2(SCREEN.x - 520, SCREEN.y - 21), 13, Color("4a6577"))
+	_brief_label = _make_label(hud, Vector2(20, screen.y - 21), 13, Color("8fb8cc"))
+	var controls := _make_label(hud, Vector2(screen.x - 520, screen.y - 21), 13, Color("4a6577"))
 	controls.size.x = 500
 	controls.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	controls.text = "WASD move   SPACE hide   R restart   M music   ESC missions"
+	controls.visible = not portrait  # no room beside the briefing
 
-	_toast = _make_label(hud, Vector2(0, HUD_HEIGHT + 10), 20, Color("ffd84a"))
-	_toast.size.x = SCREEN.x
+	_toast = _make_label(hud, Vector2(0, hud_height + 10), 20, Color("ffd84a"))
+	_toast.size.x = screen.x
 	_toast.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_toast.add_theme_constant_override("outline_size", 8)
 	_toast.add_theme_color_override("font_outline_color", Color("030a12"))
 
 	_banner = Label.new()
-	_banner.size = SCREEN
+	_banner.size = screen
 	_banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_banner.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_banner.add_theme_font_size_override("font_size", 44)
+	_banner.add_theme_font_size_override("font_size", 36 if portrait else 44)
 	_banner.add_theme_constant_override("outline_size", 12)
 	_banner.add_theme_color_override("font_outline_color", Color("030a12"))
 	_banner.visible = false
 	hud.add_child(_banner)
 
 	_menu = MissionMenu.new()
+	_menu.screen_size = screen
 	_menu.visible = false
 	hud.add_child(_menu)
 
@@ -503,7 +532,7 @@ func _show_toast(text: String) -> void:
 
 func _update_hud(delta: float) -> void:
 	_time_label.text = "TIME " + _format_time(elapsed)
-	_meter_fill.size.x = 230.0 * detection
+	_meter_fill.size.x = _meter_width * detection
 	_meter_fill.color = Color("4dff9a").lerp(Color("ffd84a"), minf(detection * 2.0, 1.0)) \
 			if detection < 0.5 else Color("ffd84a").lerp(Color("ff3344"), (detection - 0.5) * 2.0)
 	_toast_timer = maxf(_toast_timer - delta, 0.0)
@@ -512,6 +541,38 @@ func _update_hud(delta: float) -> void:
 
 func _format_time(t: float) -> String:
 	return MissionMenu.format_time(t)
+
+
+# --- Portrait mode ---------------------------------------------------------
+
+func _enter_portrait() -> void:
+	portrait = true
+	screen = Vector2(648, 1152)
+	hud_height = 84.0
+	# Godot scales this layout size up to the real window (e.g. 1080x1920).
+	get_window().content_scale_size = Vector2i(screen)
+	if Engine.get_write_movie_path() == "":
+		DisplayServer.window_set_size(Vector2i(540, 960))
+
+
+## Keeps the box in view: follows it, but never shows past the map's edges.
+## The visible area is what's left between the HUD and the footer.
+func _update_camera(delta: float) -> void:
+	if camera == null or player == null:
+		return
+	var zoom := PORTRAIT_ZOOM
+	var view := Vector2(screen.x, screen.y - hud_height - FOOTER_HEIGHT) / zoom
+	# The usable area's centre sits below the screen centre by this much (in world units).
+	var shift := ((hud_height - FOOTER_HEIGHT) * 0.5) / zoom
+	var map: Vector2 = maze.pixel_size()
+	var want := Vector2.ZERO
+	for axis in 2:
+		var half := view[axis] * 0.5
+		want[axis] = map[axis] * 0.5 if map[axis] <= view[axis] \
+				else clampf(player.position[axis], half, map[axis] - half)
+	want.y -= shift
+	var blend := 1.0 if delta == 0.0 else 1.0 - exp(-6.0 * delta)
+	camera.position = camera.position.lerp(want, blend)
 
 
 # --- Input & dev flags ---------------------------------------------------
@@ -543,6 +604,14 @@ func _setup_input() -> void:
 # Dev flags go after `--`, e.g. `godot --path . -- --level=2 --screenshot=/tmp/l3.png`
 # starts on the third mission (skipping the menu), saves a PNG after a second
 # of play, and quits.
+## With --log-events, prints "EVENT <seconds since launch> <name>" so video
+## tooling can find moments (spotted, hide, alert, keycard, complete) in a
+## recording of the same deterministic run.
+func _log_event(what: String) -> void:
+	if _dev_flag("log-events"):
+		print("EVENT %.2f %s %.2f" % [_run_time, what, detection])
+
+
 func _dev_flag(key: String) -> bool:
 	return ("--" + key) in OS.get_cmdline_user_args()
 
