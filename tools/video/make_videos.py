@@ -458,7 +458,9 @@ def build(v, tmp):
     for i, (t0, t1, text, style) in enumerate(captions):
         png = os.path.join(tmp, f"cap{i}.png")
         caption_png(png, text, style, v["orient"])
-        inputs += ["-i", png]
+        # Loop the still image for the whole video: a single-frame input ends
+        # immediately, so a caption that starts after an intro card would never show.
+        inputs += ["-loop", "1", "-t", f"{total:.2f}", "-i", png]
         filters.append(f"{last}[{i + 1}:v]overlay=0:0:enable='between(t,{t0 + offset:.2f},{t1 + offset:.2f})'[v{i}]")
         last = f"[v{i}]"
     n_caps = len(captions)
