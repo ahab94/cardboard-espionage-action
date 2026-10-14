@@ -299,8 +299,9 @@ def sfx():
         tone(hz("E5"), 0.09, "sine", 0.35, decay=0.08),
         at(0.08, tone(hz("B5"), 0.22, "sine", 0.35, decay=0.1, glide_to=hz("C#6"))),
     )
-    # Cardboard scuff for each step (pitch is varied when played).
-    s["step"] = noise(0.07, 0.4, decay=0.018, lowpass=1100, highpass=120, seed=11)
+    # A soft, muffled cardboard brush for each step (pitch is varied when played).
+    # Kept dark and gentle on purpose: it repeats constantly while moving.
+    s["step"] = noise(0.12, 0.4, decay=0.035, lowpass=420, highpass=90, seed=11, attack=0.015)
     # Dropping the box: a soft low thump.
     s["hide"] = layer(
         tone(130, 0.2, "sine", 0.6, decay=0.07, glide_to=55),

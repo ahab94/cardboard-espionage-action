@@ -365,11 +365,11 @@ func _play_cues(seen: bool, hidden: bool, delta: float) -> void:
 	_was_seen = seen
 	_was_hidden = hidden
 
-	# Cardboard scuffs while walking.
+	# Quiet cardboard shuffles while walking: felt more than heard.
 	_step_timer -= delta
 	if player.velocity.length() > 10.0 and _step_timer <= 0.0:
-		sound.play("step", -9.0, 0.18)
-		_step_timer = 0.21
+		sound.play("step", -18.0, 0.12)
+		_step_timer = 0.3
 
 	# Lasers zap as they switch on; nearer beams are louder, far ones silent.
 	for i in lasers.size():

@@ -4,7 +4,7 @@ A top-down stealth game where you are a cardboard box. Sneak through 10 wirefram
 
 ![The autopilot beating VO-10 Final Exam (2x speed)](docs/media/demo.gif)
 
-*The built-in autopilot beating the Final Exam at 2× speed. [Watch it beat all 10 missions (3½ min)](../../releases/download/v0.2.1/CardboardEspionageAction-autopilot-playthrough.mp4).*
+*The built-in autopilot beating the Final Exam at 2× speed. [Watch it beat all 10 missions (3½ min)](../../releases/download/v0.3.0/CardboardEspionageAction-autopilot-playthrough.mp4).*
 
 ## Play
 **▶ [Play in your browser](https://ahab94.github.io/cardboard-espionage-action/)**: nothing to install.
