@@ -594,6 +594,11 @@ func _enter_portrait() -> void:
 	portrait = true
 	screen = Vector2(648, 1152)
 	hud_height = 84.0
+	# Phones are often taller than 9:16. Keep the width and grow the layout
+	# to the screen's real shape, so there are no black bars top and bottom.
+	var win := DisplayServer.window_get_size()
+	if touch and win.x > 0 and float(win.y) / win.x > screen.y / screen.x:
+		screen.y = round(screen.x * float(win.y) / win.x)
 	# Godot scales this layout size up to the real window (e.g. 1080x1920).
 	get_window().content_scale_size = Vector2i(screen)
 	if _dev_flag("portrait") and Engine.get_write_movie_path() == "" and OS.get_name() != "Web":
